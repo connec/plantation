@@ -12,9 +12,7 @@ mocha_args = [
 ]
 
 task 'test', 'Runs the project\'s tests on the source', ->
-  global.expect = chai.expect
   spawn process.execPath, mocha_args, { customFds: [ 0, 1, 2 ] }
 
 task 'test:watch', 'Watches the project\'s source and reruns tests on changes', ->
-  global.expect = chai.expect
   spawn process.execPath, mocha_args.concat([ '--watch' ]), { customFds: [ 0, 1, 2 ] }
