@@ -1,7 +1,7 @@
 {
   "name": "plantation",
-  "version": "0.0.1",
-  "main": "./src/lib/plantation",
+  "version": "0.0.2",
+  "main": "./lib/plantation",
   "dependencies": {
     "coffee-script": "1.x.x",
     "chai": "1.x.x",
