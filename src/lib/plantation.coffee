@@ -1,3 +1,2 @@
-exports.tasks = ->
-  return unless task?
-  require './tasks'
+module.exports = (packages) ->
+  require "./#{pkg}" for pkg in packages

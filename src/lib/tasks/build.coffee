@@ -15,10 +15,10 @@ task 'build', 'Builds the project', ->
   invoke 'build:coffee'
   invoke 'build:yaml'
 
-task 'build:coffee', ->
+task 'build:coffee', 'Builds all CoffeeScript files under src', ->
   spawn process.execPath, coffee_args, { customFds: [ 0, 1, 2 ] }
 
-task 'build:yaml', ->
+task 'build:yaml', 'Builds all YAML files under src', ->
   glob 'src/{*.,**/*.}{yaml,yml}', (err, files) ->
     for file in files
       yaml = file.replace(/^src\//, '').replace(/ya?ml$/, 'json')
