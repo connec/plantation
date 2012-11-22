@@ -1,13 +1,14 @@
 {
   "name": "plantation",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./lib/plantation",
+  "bin": {
+    "plantation": "./bin/plantation"
+  },
   "dependencies": {
     "coffee-script": "1.x.x",
     "chai": "1.x.x",
-    "glob": "3.x.x",
     "mocha": "1.x.x",
-    "node-watch": "0.2.x",
     "sinon": "1.x.x",
     "sinon-chai": "2.x.x",
     "yaml-js": "0.0.5"

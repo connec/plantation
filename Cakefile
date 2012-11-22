@@ -1,4 +1,1 @@
-require('./src/lib/plantation') [
-  'tasks/build'
-  'tasks/test'
-]
+do require './lib/plantation'
