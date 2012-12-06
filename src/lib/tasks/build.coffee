@@ -1,99 +1,124 @@
 fs   = require 'fs'
 path = require 'path'
-util = require 'util'
-
-directories = []
-sources     = []
-compilers   = []
+sty  = require 'sty'
+util = require '../util'
 
 ###
-Export a function that registers tasks.
+Export a function that creates tasks.
 ###
-module.exports = (plantation) ->
-  # Cache directories for convenience
-  directories = plantation.options.directories
-
-  # Get the full list of source files
-  sources = readdir_recursive plantation.options.directories.source
-
-  # Build an array of compilers in the correct order
-  compilers = (plantation.options.compilers[name] for name in plantation.options.compiler_order)
-
-  register_build_tasks()
+module.exports = ->
+  new Builder(@config).register_tasks()
+  undefined
 
 ###
-Registers cake build tasks for all compilers.
+The Builder class encapsulates functionality for building sources using compilers registered with
+plantation.
 ###
-register_build_tasks = ->
-  task 'build', 'Builds all source files', ->
-    invoke "build:#{name}" for { name } in compilers
+class Builder
 
-  for compiler in compilers then do (compiler) ->
-    task "build:#{compiler.name}", ->
-      console.log "\nCompiling #{compiler.name}:"
-      execute_compiler compiler
+  ###
+  Initialises a new Builder instance.
 
-###
-Executes the given compiler:
-- finds matching source files
-- compiles the contents of matched files
-- writes the compilation result to the target file
-###
-execute_compiler = (compiler) ->
-  compiled        = []
-  max_name_length = 0
-  for source in sources.filter filter_sources compiler.source
-    target = make_target source, compiler.source, compiler.target
-    result = compiler.compiler fs.readFileSync source, 'utf8'
+  @param  @config The plantation configuration
+  @return         A new instance of Builder
+  ###
+  constructor: (@config) ->
+    # Eagerly load the full list of source files
+    @sources = util.readdir_recursive @config.directories.source
 
-    fs.writeFileSync target, result
+    # Some handy things to know, for formatting
+    @max_compiler_name_length = 0
+    @max_source_name_length   = 0
+    for { name } in @config.compilers
+      @max_compiler_name_length = name.length if @max_compiler_name_length < name.length
+    for source in @sources
+      @max_source_name_length = source.length if @max_source_name_length < source.length
 
-    compiled.push [ source, target ].map (file) -> path.relative directories.current, file
-    max_name_length = length if max_name_length < length = compiled[-1..][0][0].length
+  ###
+  Registers cake tasks that leverage the builder instance.
+  ###
+  register_tasks: ->
+    task 'build', 'Builds all source files',                         => @build_all()
+    task 'watch', 'Watches all source files, and builds on changes', => @watch_all()
 
-  for [ source, target ] in compiled
-    space = ( i = max_name_length - source.length ; (' ' while i--).join '' )
-    console.log "  #{source}#{space} -> #{target}"
+    for compiler in @config.compilers then do (compiler) =>
+      task "build:#{compiler.name}", => @build_using compiler
+      task "watch:#{compiler.name}", => @watch_using compiler
 
-###
-Creates a function to filter a string by the given selector.
-###
-filter_sources = (selector) ->
-  if typeof selector is 'string'
-    selector = selector[1..] if selector[0] is '.'
-    (source) -> source[ (1 + source.lastIndexOf '.').. ] == selector
-  else if typeof selector is 'function'
-    (source) -> !!selector source
-  else if selector instanceof RegExp
-    (source) -> !!source.match selector
-  else
-    throw new Exception "Don't know how to use selector #{util.inspect selector}"
+    undefined
 
-###
-Makes a target file name based on the source and the compiler's target option.
-###
-make_target = (source, selector, converter) ->
-  target = path.resolve directories.target, path.relative directories.source, source
-  if typeof converter is 'string'
-    converter = converter[1..] if converter[0] is '.'
-    target[ ..(target.lastIndexOf '.') ] + converter
-  else if typeof converter is 'function'
-    converter target, selector
-  else if selector instanceof RegExp
-    target.replace selector, converter
-  else
-    throw new Exception "Don't know how to use converter #{util.inspect converter}"
+  ###
+  Builds using all registered compilers.
+  ###
+  build_all: ->
+    @build_using compiler for compiler in @config.compilers
+    undefined
 
+  ###
+  Watches using all registered compilers.
+  ###
+  watch_all: ->
+    @watch_using compiler for compiler in @config.compilers
+    undefined
 
-###
-Recursively read a directory and return a flat array of files.
-###
-readdir_recursive = (root) ->
-  files = []
-  for entry in fs.readdirSync root
-    entry = path.join root, entry
-    if fs.statSync(entry).isFile()
-      files.push entry
-    else
-      files = files.concat readdir_recursive entry
-  files
+  ###
+  Builds source files for the given compiler.
+
+  @param compiler Compiler descriptor
+  ###
+  build_using: (compiler) ->
+    for source in @sources when compiler.should_compile @relative_source source
+      @compile_source source, compiler
+    undefined
+
+  ###
+  Watches source files of the given compiler.
+
+  @param compiler Compiler descriptor
+  ###
+  watch_using: (compiler) ->
+    undefined
+
+  ###
+  Compiles a single source file using the given compiler.
+
+  @param source   Path to the source file to compile
+  @param compiler Compiler descriptor
+  ###
+  compile_source: (source, compiler) ->
+    relative_source = @relative_source source
+    relative_target = compiler.make_target relative_source
+    target          = path.resolve @config.directories.target, relative_target
+
+    # Print before we actually run the compiler, so the user knows which source failed
+    console.log @compilation_description compiler.name, source, target
+
+    fs.writeFileSync target, compiler.compile relative_source, fs.readFileSync source, 'utf8'
+
+    undefined
+
+  ###
+  Gets a formatted description of an impending compilation.
+
+  @param  compiler_name Name of the compiler about to be invoked
+  @param  source        Path of the source file
+  @param  target        Path of the target file
+  @return               Formatted description
+  ###
+  compilation_description: (compiler_name, source, target) ->
+    compiler_padding = (' ' for i in [0...@max_compiler_name_length - compiler_name.length]).join ''
+    source_padding   = (' ' for i in [0...@max_source_name_length - source.length]).join ''
+    [
+      '  '
+      "#{compiler_padding}#{sty.cyan compiler_name} : "
+      "#{sty.yellow path.relative @config.directories.current, source}#{source_padding}  >  "
+      "#{sty.green path.relative @config.directories.current, target}"
+    ].join ''
+
+  ###
+  Gets the relative path to the given source file from the source directory.
+
+  @param source Path of the source file
+  ###
+  relative_source: (source) ->
+    path.relative @config.directories.source, source

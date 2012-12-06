@@ -1,52 +1,56 @@
-path = require 'path'
+Compiler = require './compiler'
+path     = require 'path'
 
 ###
 The plantation object.
 ###
 module.exports = plantation = ->
-  plantation.use require './default.plantation'
+  plantation.use require './default_package'
   plantation.cake()
 
 ###
 Options.
 ###
-plantation.options = options =
-  compilers:      {}
-  compiler_order: []
-  packages:       []
+plantation.config = config =
+  compilers:   []
+  packages:    []
   directories:
-    current:      path.resolve '.'
-    source:       path.resolve './src'
-    target:       path.resolve '.'
+    current:   path.resolve '.'
+    source:    path.resolve './src'
+    target:    path.resolve '.'
 
 ###
 Use the given package.
 ###
 plantation.use = (pkg) ->
-  return plantation if pkg in options.packages
+  return plantation if pkg in config.packages
+  config.packages.push pkg
 
-  options.packages.push pkg
-  pkg plantation.proxy
+  pkg.call plantation.proxy
   plantation
 
 ###
 Load cake tasks.
 ###
 plantation.cake = ->
-  task plantation for task in require './tasks'
+  task.call plantation for task in require './tasks'
 
 ###
 Registers a compiler function.
 ###
+compiler_names = []
 plantation.register_compiler = (name, source, target, compiler) ->
-  if name of options.compilers
+  if name instanceof Compiler
+    compiler = name
+  else
+    [ source, target, compiler ] = [ name, source, target ] unless compiler?
+    compiler = new Compiler name, source, target, compiler, config
+
+  if compiler.name in compiler_names
     throw new Error "Compiler with name `#{name}` has already been registered"
 
-  unless compiler
-    [ source, target, compiler ] = [ name, source, target ]
-
-  options.compilers[name] = { name, source, target, compiler }
-  options.compiler_order.push name
+  compiler_names.push   compiler.name
+  config.compilers.push compiler
 
 ###
 A proxy object given to packages.

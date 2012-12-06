@@ -1,6 +1,6 @@
 {
   "name": "plantation",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "./lib/plantation",
   "bin": {
     "plantation": "./bin/plantation"
@@ -11,6 +11,7 @@
     "mocha": "1.x.x",
     "sinon": "1.x.x",
     "sinon-chai": "2.x.x",
+    "sty": "0.6.x",
     "yaml-js": "0.0.5"
   }
 }

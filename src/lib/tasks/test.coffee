@@ -1,8 +1,8 @@
 path    = require 'path'
 {spawn} = require 'child_process'
 
-module.exports = (plantation) ->
-  test_cwd = plantation.options.directories.current
+module.exports = ->
+  test_cwd = @config.directories.current
 
   mocha_args = [
     path.join path.dirname(require.resolve 'mocha'), 'bin', 'mocha'
