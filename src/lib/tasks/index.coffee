@@ -1,5 +1,5 @@
 module.exports = [
-  require './info'
   require './build'
+  require './info'
   require './test'
 ]

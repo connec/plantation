@@ -1,59 +1,73 @@
-Compiler = require './compiler'
-path     = require 'path'
+path = require 'path'
 
 ###
 The plantation object.
 ###
-module.exports = plantation = ->
-  plantation.use require './default_package'
+module.exports = global.plantation = ->
+  register_default_compilers()
   plantation.cake()
 
 ###
-Options.
+Config.
 ###
-plantation.config = config =
+plantation.config = { compilers, directories } =
   compilers:   []
-  packages:    []
   directories:
     current:   path.resolve '.'
     source:    path.resolve './src'
     target:    path.resolve '.'
 
 ###
-Use the given package.
+Resolves the given path against the chosen given directory.
 ###
-plantation.use = (pkg) ->
-  return plantation if pkg in config.packages
-  config.packages.push pkg
-
-  pkg.call plantation.proxy
-  plantation
+directories.resolve = (args...) ->
+  if args.length >= 2
+    path.resolve directories[args[0]], args[1]
+  else
+    type = Object.keys(args[0])[0]
+    path.resolve directories[type], args[0][type]
 
 ###
-Load cake tasks.
+Gets the relative path from the given directory to the given path.
+###
+directories.relative = (args...) ->
+  if args.length >= 2
+    path.relative directories[args[0]], args[1]
+  else
+    type = Object.keys(args[0])[0]
+    path.relative directories[type], args[0][type]
+
+###
+Creates cake tasks.
 ###
 plantation.cake = ->
-  task.call plantation for task in require './tasks'
+  do task for task in require './tasks'
 
 ###
-Registers a compiler function.
+Registers a compiler.
 ###
 compiler_names = []
 plantation.register_compiler = (name, source, target, compiler) ->
+  Compiler = require './compiler'
+
   if name instanceof Compiler
     compiler = name
   else
     [ source, target, compiler ] = [ name, source, target ] unless compiler?
-    compiler = new Compiler name, source, target, compiler, config
+    compiler = new Compiler name, source, target, compiler
 
   if compiler.name in compiler_names
     throw new Error "Compiler with name `#{name}` has already been registered"
 
   compiler_names.push   compiler.name
-  config.compilers.push compiler
+  compilers.push compiler
 
 ###
-A proxy object given to packages.
+Registers default compilers for CoffeeScript and YAML.
 ###
-plantation.proxy =
-  register_compiler: plantation.register_compiler
+register_default_compilers = ->
+  compile_coffee = require('coffee-script').compile
+  compile_yaml   = (source) -> JSON.stringify require('yaml-js').load(source), null, '  '
+
+  plantation.register_compiler 'coffee', 'js', compile_coffee
+  plantation.register_compiler 'yaml', /ya?ml/, 'json', compile_yaml

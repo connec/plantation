@@ -1,4 +1,5 @@
-util = require 'util'
+fs                    = require 'fs'
+{ relative, resolve } = require('./plantation').config.directories
 
 ###
 A Compiler instance encapsulates the functionality required to compile a source file.
@@ -6,73 +7,69 @@ A Compiler instance encapsulates the functionality required to compile a source 
 module.exports = class Compiler
 
   ###
-  Initialize a new Compiler instance.
-
-  @param  @name     Name for the compiler
-  @param  @source   Source descriptor for matching source files
-  @param  @target   Target descriptor for making target file names from source file names
-  @param  @compiler Actual compile function, taking a string of source as input
-  @param  @config   Configuration object from plantation
-  @return           A new Compiler instance
+  Initialises a new instance.
   ###
-  constructor: (@name, @source, @target, @compiler, @config) ->
+  constructor: (@name, @_source_descriptor, @_target_descriptor, @_compile) ->
+    @should_compile = @get_source_filter()
+    @make_target    = @get_target_builder()
 
   ###
-  Determines whether the compiler should compile the given source file.
-
-  @param  source Path to a source file, relative to the source directory
-  @return        True if the compiler should compile the file, false otherwise
+  Compiles the given source file and saves the result.
   ###
-  should_compile: (source) ->
-    @source_filter ?= @get_source_filter()
-    @source_filter source
+  compile: (source) ->
+    target = @make_target source
 
-  ###
-  Makes a target file name based on the given source file name.
+    error = null
+    try
+      fs.writeFileSync target, @_compile fs.readFileSync(source, 'utf8'), filename: source
+    catch e
+      error = e
 
-  @param  source Path to a source file, relative to the source directory
-  @return        Path to a target file, relative to the target directory
-  ###
-  make_target: (source) ->
-    @target_builder ?= @get_target_builder()
-    @target_builder source
-
-  ###
-  Applies the compiler to the given source file.
-
-  @param  source_name    Name of the file being compiled
-  @param  source_content Source code to compile
-  @return                Compilation result
-  ###
-  compile: (source_name, source_content) ->
-    @compiler source_content
+    new @Result source, target, error
 
   ###
   Gets the source filter.
-
-  @return Function for filtering source file names
   ###
   get_source_filter: ->
-    if typeof @source is 'function'
-      (source) -> !!@source source
-    else if typeof @source is 'string'
-      ext = if @source[0] is '.' then @source else '.' + @source
+    if typeof @_source_descriptor is 'function'
+      (source) -> !!@_source_descriptor relative { source }
+
+    else if typeof @_source_descriptor is 'string'
+      ext = if @_source_descriptor[0] is '.' then @_source_descriptor else '.' + @_source_descriptor
       (source) -> source[ (source.lastIndexOf '.').. ] == ext
-    else if @source instanceof RegExp
-      (source) => !!source.match @source
+
+    else if @_source_descriptor instanceof RegExp
+      (source) => !!relative({ source }).match @_source_descriptor
+
     else
-      throw new Exception "Don't know how to use source descriptor: #{util.inspect @source}"
+      throw new Exception "Don't know how to use source descriptor: #{util.inspect @_source_descriptor}"
 
   ###
   Gets the target builder.
-
-  @return Function for making target file names from source file names
   ###
   get_target_builder: ->
-    if typeof @target is 'function'
-      (source) => @target source
-    else if typeof @target is 'string'
-      ext = if @target[0] is '.' then @target[1..] else @target
-      (source) -> source[ ..(source.lastIndexOf '.') ] + ext
+    if typeof @_target_descriptor is 'function'
+      (source) => resolve target: @_target_descriptor relative { source }
+
+    else if typeof @_target_descriptor is 'string'
+      ext = if @_target_descriptor[0] is '.' then @_target_descriptor[1..] else @_target_descriptor
+      (source) -> resolve target: (relative source: source[ ..(source.lastIndexOf '.') ] + ext)
+
     else
-      throw new Exception "Don't know how to use target descriptor: #{util.inspect @target}"
+      throw new Exception "Don't know how to use target descriptor: #{util.inspect @_target_descriptor}"
+
+  ###
+  Represents a compilation result.
+  ###
+  class @::Result
+
+    ###
+    Initialises a new instance.
+    ###
+    constructor: (@source, @target, @error = null) ->
+
+    ###
+    Determines whether this is a successful compilation result.
+    ###
+    is_success: ->
+      not @error?

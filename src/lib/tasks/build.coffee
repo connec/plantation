@@ -1,124 +1,53 @@
-fs   = require 'fs'
-path = require 'path'
-sty  = require 'sty'
-util = require '../util'
+{ compilers, directories } = plantation.config
+
+util     = require '../util'
+sty      = require 'sty'
+
+sources  = util.readdir_recursive directories.source
+
+build_all = ->
+  build compiler for compiler in compilers
+
+build = (compiler) ->
+  results = (compiler.compile source for source in sources when compiler.should_compile source)
+  {
+    compiler: compiler.name
+    results:  results
+  }
+
+print_results = (compiler_results...) ->
+  console.log()
+
+  max_compiler = 0
+  max_source   = 0
+  for { compiler, results } in compiler_results
+    max_compiler = compiler.length if compiler.length > max_compiler
+    (max_source  = source.length   if source.length   > max_source) for { source } in results
+
+  errors = []
+  for { compiler, results } in compiler_results
+    compiler = spaces(max_compiler - compiler.length) + compiler
+    for { source, target, error } in results
+      source = directories.relative(current: source) + spaces max_source - source.length
+      target = directories.relative current: target
+      errors.push { source, error } if error?
+
+      console.log [
+        "  #{sty.cyan compiler} : #{sty.yellow source}  >  "
+        sty[if error? then 'red' else 'green'] target
+      ].join ''
+
+  for { source, error } in errors
+    console.log sty.red "\n\nError compiling #{source}\n#{error.stack}"
+
+spaces = (n) ->
+  (' ' for i in [0...n]).join ''
 
 ###
-Export a function that creates tasks.
+Export a function to define the tasks once plantation is configured.
 ###
 module.exports = ->
-  new Builder(@config).register_tasks()
-  undefined
+  task 'build', 'Builds all source files', -> print_results build_all()...
 
-###
-The Builder class encapsulates functionality for building sources using compilers registered with
-plantation.
-###
-class Builder
-
-  ###
-  Initialises a new Builder instance.
-
-  @param  @config The plantation configuration
-  @return         A new instance of Builder
-  ###
-  constructor: (@config) ->
-    # Eagerly load the full list of source files
-    @sources = util.readdir_recursive @config.directories.source
-
-    # Some handy things to know, for formatting
-    @max_compiler_name_length = 0
-    @max_source_name_length   = 0
-    for { name } in @config.compilers
-      @max_compiler_name_length = name.length if @max_compiler_name_length < name.length
-    for source in @sources
-      @max_source_name_length = source.length if @max_source_name_length < source.length
-
-  ###
-  Registers cake tasks that leverage the builder instance.
-  ###
-  register_tasks: ->
-    task 'build', 'Builds all source files',                         => @build_all()
-    task 'watch', 'Watches all source files, and builds on changes', => @watch_all()
-
-    for compiler in @config.compilers then do (compiler) =>
-      task "build:#{compiler.name}", => @build_using compiler
-      task "watch:#{compiler.name}", => @watch_using compiler
-
-    undefined
-
-  ###
-  Builds using all registered compilers.
-  ###
-  build_all: ->
-    @build_using compiler for compiler in @config.compilers
-    undefined
-
-  ###
-  Watches using all registered compilers.
-  ###
-  watch_all: ->
-    @watch_using compiler for compiler in @config.compilers
-    undefined
-
-  ###
-  Builds source files for the given compiler.
-
-  @param compiler Compiler descriptor
-  ###
-  build_using: (compiler) ->
-    for source in @sources when compiler.should_compile @relative_source source
-      @compile_source source, compiler
-    undefined
-
-  ###
-  Watches source files of the given compiler.
-
-  @param compiler Compiler descriptor
-  ###
-  watch_using: (compiler) ->
-    undefined
-
-  ###
-  Compiles a single source file using the given compiler.
-
-  @param source   Path to the source file to compile
-  @param compiler Compiler descriptor
-  ###
-  compile_source: (source, compiler) ->
-    relative_source = @relative_source source
-    relative_target = compiler.make_target relative_source
-    target          = path.resolve @config.directories.target, relative_target
-
-    # Print before we actually run the compiler, so the user knows which source failed
-    console.log @compilation_description compiler.name, source, target
-
-    fs.writeFileSync target, compiler.compile relative_source, fs.readFileSync source, 'utf8'
-
-    undefined
-
-  ###
-  Gets a formatted description of an impending compilation.
-
-  @param  compiler_name Name of the compiler about to be invoked
-  @param  source        Path of the source file
-  @param  target        Path of the target file
-  @return               Formatted description
-  ###
-  compilation_description: (compiler_name, source, target) ->
-    compiler_padding = (' ' for i in [0...@max_compiler_name_length - compiler_name.length]).join ''
-    source_padding   = (' ' for i in [0...@max_source_name_length - source.length]).join ''
-    [
-      '  '
-      "#{compiler_padding}#{sty.cyan compiler_name} : "
-      "#{sty.yellow path.relative @config.directories.current, source}#{source_padding}  >  "
-      "#{sty.green path.relative @config.directories.current, target}"
-    ].join ''
-
-  ###
-  Gets the relative path to the given source file from the source directory.
-
-  @param source Path of the source file
-  ###
-  relative_source: (source) ->
-    path.relative @config.directories.source, source
+  for compiler in compilers then do (compiler) ->
+    task "build:#{compiler.name}", -> print_results build compiler
