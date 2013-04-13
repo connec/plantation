@@ -1,5 +1,5 @@
 name:            plantation
-version:         0.0.5
+version:         0.0.6
 main:            ./lib/plantation
 bin:
   plantation:    ./bin/plantation
