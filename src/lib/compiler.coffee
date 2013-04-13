@@ -36,7 +36,7 @@ module.exports = class Compiler
 
     else if typeof @_source_descriptor is 'string'
       ext = if @_source_descriptor[0] is '.' then @_source_descriptor else '.' + @_source_descriptor
-      (source) -> source[ (source.lastIndexOf '.').. ] == ext
+      (source) -> source[-ext.length..] == ext
 
     else if @_source_descriptor instanceof RegExp
       (source) => !!relative({ source }).match @_source_descriptor

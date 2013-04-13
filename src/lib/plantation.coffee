@@ -70,4 +70,4 @@ register_default_compilers = ->
   compile_yaml   = (source) -> JSON.stringify require('yaml-js').load(source), null, '  '
 
   plantation.register_compiler 'coffee', 'js', compile_coffee
-  plantation.register_compiler 'yaml', /ya?ml/, 'json', compile_yaml
+  plantation.register_compiler 'yaml', /\.ya?ml$/, 'json', compile_yaml
