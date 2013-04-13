@@ -5,6 +5,15 @@ sty      = require 'sty'
 
 sources  = util.readdir_recursive directories.source
 
+###
+Export a function to define the tasks once plantation is configured.
+###
+module.exports = ->
+  task 'build', 'Builds all source files', -> print_results build_all()...
+
+  for compiler in compilers then do (compiler) ->
+    task "build:#{compiler.name}", -> print_results build compiler
+
 build_all = ->
   build compiler for compiler in compilers
 
@@ -42,12 +51,3 @@ print_results = (compiler_results...) ->
 
 spaces = (n) ->
   (' ' for i in [0...n]).join ''
-
-###
-Export a function to define the tasks once plantation is configured.
-###
-module.exports = ->
-  task 'build', 'Builds all source files', -> print_results build_all()...
-
-  for compiler in compilers then do (compiler) ->
-    task "build:#{compiler.name}", -> print_results build compiler
