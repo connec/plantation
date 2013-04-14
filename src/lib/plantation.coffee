@@ -3,7 +3,8 @@ path = require 'path'
 ###
 The plantation object.
 ###
-module.exports = global.plantation = ->
+module.exports = global.plantation = (options) ->
+  plantation.config.options[k] = v for k, v of options
   register_default_compilers()
   plantation.cake()
 
@@ -16,6 +17,7 @@ plantation.config = { compilers, directories } =
     current:   path.resolve '.'
     source:    path.resolve './src'
     target:    path.resolve '.'
+  options:     {}
 
 ###
 Resolves the given path against the chosen given directory.
