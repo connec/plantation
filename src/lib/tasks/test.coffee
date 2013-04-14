@@ -1,19 +1,32 @@
-test_cwd = require('../plantation').config.directories.current
-path     = require 'path'
-{spawn}  = require 'child_process'
+path    = require 'path'
+{spawn} = require 'child_process'
+
+{ directories, options } = plantation.config
 
 module.exports = ->
-  mocha_args = [
-    path.join path.dirname(require.resolve 'mocha'), 'bin', 'mocha'
-    '-R', 'spec'
-    '--recursive',
-    '--require', 'coffee-script'
-    '--require', path.relative test_cwd, path.join __dirname, '..', 'test', 'support', 'test_helper'
-    '--compilers', 'coffee:coffee-script'
-  ]
+  mocha_options =
+    R:         'spec'
+    recursive: true
+    require:   'coffee-script'
+    require:   directories.relative(current: path.join __dirname, '..', 'test', 'support', 'test_helper')
+    compilers: 'coffee:coffee-script'
+
+  if options.mocha?
+    mocha_options[k] = v for k, v of options.mocha
+
+  mocha_args = []
+  for k, v of mocha_options
+    continue unless v
+    mocha_args.push "-#{if k.length is 1 then '' else '-'}#{k}"
+    mocha_args.push v if v isnt true
 
   task 'test', 'Runs the project\'s tests on the source', ->
-    spawn process.execPath, mocha_args, customFds: [ 0, 1, 2 ], cwd: test_cwd
+    mocha mocha_args
 
   task 'test:watch', 'Watches the project\'s source and reruns tests on changes', ->
-    spawn process.execPath, mocha_args.concat([ '--watch' ]), customFds: [ 0, 1, 2 ], cwd: test_cwd
+    mocha mocha_args.concat [ '--watch' ]
+
+mocha = (args) ->
+  spawn process.execPath,
+    [ path.join path.dirname(require.resolve 'mocha'), 'bin', 'mocha' ].concat(args),
+    { customFds: [ 0, 1, 2 ], cwd: directories.current }

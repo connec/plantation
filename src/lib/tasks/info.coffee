@@ -1,4 +1,4 @@
-{ compilers, directories, packages } = require('../plantation').config
+{ compilers, directories } = plantation.config
 
 module.exports = ->
   task 'info', 'Shows info about plantation', =>
