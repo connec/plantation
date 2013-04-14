@@ -12,6 +12,6 @@
     "sinon": "1.x.x",
     "sinon-chai": "2.x.x",
     "sty": "0.6.x",
-    "yaml-js": "0.0.5"
+    "yaml-js": "0.0.7"
   }
 }
