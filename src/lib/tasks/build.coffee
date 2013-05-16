@@ -1,21 +1,34 @@
 { compilers, directories } = plantation.config
 
-util     = require '../util'
-sty      = require 'sty'
+node_watch = require 'node-watch'
+sty        = require 'sty'
+util       = require '../util'
 
-sources  = util.readdir_recursive directories.source
+sources    = util.readdir_recursive directories.source
 
 ###
 Export a function to define the tasks once plantation is configured.
 ###
 module.exports = ->
   task 'build', 'Builds all source files', -> print_results build_all()...
+  task 'watch', 'Watches source files for changes', watch_all
 
   for compiler in compilers then do (compiler) ->
     task "build:#{compiler.name}", -> print_results build compiler
 
+  for compiler in compilers then do (compiler) ->
+    task "build:#{compiler.name}", -> print_results build compiler
+    task "watch:#{compiler.name}", -> watch compiler
+
 build_all = ->
   build compiler for compiler in compilers
+
+watch_all = ->
+  node_watch directories.source, (source) ->
+    for compiler in compilers when compiler.should_compile source
+      print_results
+        compiler: compiler.name
+        results:  [ compiler.compile source ]
 
 build = (compiler) ->
   results = (compiler.compile source for source in sources when compiler.should_compile source)
@@ -23,6 +36,13 @@ build = (compiler) ->
     compiler: compiler.name
     results:  results
   }
+
+watch = (compiler) ->
+  node_watch directories.source, (source) ->
+    if compiler.should_compile source
+      print_results
+        compiler: compiler.name
+        results:  [ compiler.compile source ]
 
 print_results = (compiler_results...) ->
   console.log()
