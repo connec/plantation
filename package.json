@@ -1,6 +1,6 @@
 {
   "name": "plantation",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "./lib/plantation",
   "bin": {
     "plantation": "./bin/plantation"
