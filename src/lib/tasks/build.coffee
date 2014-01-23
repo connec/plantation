@@ -11,11 +11,10 @@ Export a function to define the tasks once plantation is configured.
 ###
 module.exports = ->
   task 'build', 'Builds all source files', -> print_results build_all()...
-  task 'watch', 'Watches source files for changes', watch_all
-
   for compiler in compilers then do (compiler) ->
     task "build:#{compiler.name}", -> print_results build compiler
 
+  task 'watch', 'Watches source files for changes', watch_all
   for compiler in compilers then do (compiler) ->
     task "build:#{compiler.name}", -> print_results build compiler
     task "watch:#{compiler.name}", -> watch compiler
@@ -68,7 +67,7 @@ print_results = (compiler_results...) ->
       ].join ''
 
   for { source, error } in errors
-    console.log sty.red "\n\nError compiling #{source}\n#{error.stack}"
+    console.error sty.red "\n\nError compiling #{source}\n#{error.stack}"
 
 spaces = (n) ->
   (' ' for i in [0...n]).join ''
