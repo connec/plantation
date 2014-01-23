@@ -10,6 +10,7 @@
     "chai": "1.x.x",
     "mocha": "1.x.x",
     "node-watch": "0.3.x",
+    "semver": "2.x.x",
     "sinon": "1.x.x",
     "sinon-chai": "2.x.x",
     "sty": "0.6.x",
