@@ -4,7 +4,7 @@ node_watch = require 'node-watch'
 sty        = require 'sty'
 util       = require '../util'
 
-sources    = util.readdir_recursive directories.source
+sources    = null
 
 ###
 Export a function to define the tasks once plantation is configured.
@@ -31,7 +31,8 @@ watch_all = ->
         results:  [ compiler.compile source ]
 
 build = (compiler) ->
-  results = (compiler.compile source for source in sources when compiler.should_compile source)
+  sources ?= util.readdir_recursive directories.source
+  results  = (compiler.compile source for source in sources when compiler.should_compile source)
   {
     compiler: compiler.name
     results:  results
