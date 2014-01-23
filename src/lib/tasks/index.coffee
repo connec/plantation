@@ -1,5 +1,6 @@
 module.exports = [
-  require './build'
   require './info'
+  require './build'
   require './test'
+  require './publish'
 ]
