@@ -11,4 +11,4 @@ dependencies:
   sinon:         1.x.x
   sinon-chai:    2.x.x
   sty:           0.6.x
-  yaml-js:       0.0.7
+  yaml-js:       0.0.8
