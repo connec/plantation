@@ -23,6 +23,7 @@ build_all = ->
   build compiler for compiler in compilers
 
 watch_all = ->
+  print_results build_all()...
   node_watch directories.source, (source) ->
     for compiler in compilers when compiler.should_compile source
       print_results
@@ -38,6 +39,7 @@ build = (compiler) ->
   }
 
 watch = (compiler) ->
+  print_results build compiler
   node_watch directories.source, (source) ->
     if compiler.should_compile source
       print_results
