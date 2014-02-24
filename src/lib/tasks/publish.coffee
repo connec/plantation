@@ -57,9 +57,7 @@ bump = (bit) ->
   pkg         = yaml.load pkg_src
 
   new_version = semver.inc pkg.version, bit
-
-  unless new_version
-    throw new Error "Invalid version present in #{pkg_path}"
+  throw new Error "Invalid version present in #{pkg_path}" unless new_version
 
   console.log "bumping #{pkg.version} -> #{new_version}"
 
@@ -75,9 +73,9 @@ Commits `<source directory>/package.yml` and `package.json`, then tags the commi
 in package.json.
 ###
 tag = ->
-  pkg_json  = directories.resolve current: 'package.json'
-  pkg_src   = directories.relative current: directories.resolve(source: 'package.yml')
-  {version} = require pkg_json
+  pkg_json    = directories.resolve  current: 'package.json'
+  pkg_src     = directories.relative current: directories.resolve(source: 'package.yml')
+  { version } = require pkg_json
 
   exec_sequence [
     "git add #{pkg_json} #{pkg_src}"
@@ -95,7 +93,7 @@ Pushes the current `HEAD` to `refs/heads/master`, pushes the release tag to `ref
 version>`, stashes anything in the repository, then publishes on npm.
 ###
 publish = ->
-  {version} = require directories.resolve current: 'package.json'
+  { version } = require directories.resolve current: 'package.json'
 
   spawn 'git', [
     'push'
