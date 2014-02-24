@@ -9,7 +9,7 @@ module.exports = ->
     recursive: true
     require:   'coffee-script'
     require:   directories.relative(current: path.join __dirname, '..', 'test', 'support', 'test_helper')
-    compilers: 'coffee:coffee-script'
+    compilers: 'coffee:coffee-script/register'
 
   if options.mocha?
     mocha_options[k] = v for k, v of options.mocha
