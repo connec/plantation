@@ -1,4 +1,4 @@
-watchr = require 'watch'
+watchr = require 'node-watch'
 colors = require 'colors/safe'
 util   = require '../util'
 
@@ -25,8 +25,7 @@ build_all = ->
 
 watch_all = ->
   print_results build_all()...
-  watchr.watchTree directories.source, (source, stat) ->
-    return if typeof source is 'object' or not stat?.nlink
+  watchr directories.source, (source) ->
     for compiler in compilers when compiler.should_compile source
       print_results
         compiler: compiler.name
@@ -42,8 +41,7 @@ build = (compiler) ->
 
 watch = (compiler) ->
   print_results build compiler
-  watchr.watchTree directories.source, (source, stat) ->
-    return if typeof source is 'object' or not stat?.nlink
+  watchr directories.source, (source) ->
     if compiler.should_compile source
       print_results
         compiler: compiler.name

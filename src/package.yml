@@ -8,7 +8,7 @@ repository:
   url:            https://github.com/connec/plantation.git
 dependencies:
   colors:         ~1
-  watch:          0.16.0
+  node-watch:     0.3.4
   semver:         ~4
 peerDependencies: &peerDependencies
   coffee-script:  ~1
