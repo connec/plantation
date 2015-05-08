@@ -31,4 +31,4 @@ module.exports = (plantation) ->
 mocha = (args) ->
   spawn process.execPath,
     [ path.join path.dirname(require.resolve 'mocha'), 'bin', 'mocha' ].concat(args),
-    { customFds: [ 0, 1, 2 ], cwd: directories.current }
+    { cwd: directories.current, stdio: 'inherit' }
