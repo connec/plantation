@@ -122,7 +122,7 @@ publish = ->
       else
         console.log colors.green "published #{version}"
 
-exec_sequence = ([ comands, commands... ], callback) ->
+exec_sequence = ([ command, commands... ], callback) ->
   exec command, (e) ->
     e?.message = "Error executing #{command}: #{e}"
     if e? or commands.length is 1
