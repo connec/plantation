@@ -3,6 +3,9 @@ version:          0.0.13
 main:             ./lib/plantation
 bin:
   plantation:     ./bin/plantation
+repository:
+  type:           git
+  url:            https://github.com/connec/plantation.git
 dependencies:
   colors:         ~1
   watch:          0.16.0
