@@ -1,10 +1,10 @@
 { compilers, directories } = plantation.config
 
-node_watch = require 'node-watch'
-sty        = require 'sty'
-util       = require '../util'
+watchr = require 'watch'
+colors = require 'colors/safe'
+util   = require '../util'
 
-sources    = null
+sources = null
 
 ###
 Export a function to define the tasks once plantation is configured.
@@ -24,7 +24,8 @@ build_all = ->
 
 watch_all = ->
   print_results build_all()...
-  node_watch directories.source, (source) ->
+  watchr.watchTree directories.source, (source, stat) ->
+    return if typeof source is 'object' or not stat?.nlink
     for compiler in compilers when compiler.should_compile source
       print_results
         compiler: compiler.name
@@ -40,7 +41,8 @@ build = (compiler) ->
 
 watch = (compiler) ->
   print_results build compiler
-  node_watch directories.source, (source) ->
+  watchr.watchTree directories.source, (source, stat) ->
+    return if typeof source is 'object' or not stat?.nlink
     if compiler.should_compile source
       print_results
         compiler: compiler.name
@@ -64,12 +66,12 @@ print_results = (compiler_results...) ->
       errors.push { source, error } if error?
 
       console.log [
-        "  #{sty.cyan compiler} : #{sty.yellow source}  >  "
-        sty[if error? then 'red' else 'green'] target
+        "  #{colors.cyan compiler} : #{colors.yellow source}  >  "
+        colors[if error? then 'red' else 'green'] target
       ].join ''
 
   for { source, error } in errors
-    console.error sty.red "\n\nError compiling #{source}\n#{error.stack}"
+    console.error colors.red "\n\nError compiling #{source}\n#{error.stack}"
 
 spaces = (n) ->
   (' ' for i in [0...n]).join ''

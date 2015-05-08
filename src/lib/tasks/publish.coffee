@@ -33,7 +33,7 @@ child_process = require 'child_process'
 fs            = require 'fs'
 path          = require 'path'
 semver        = require 'semver'
-sty           = require 'sty'
+colors        = require 'colors/safe'
 yaml          = require 'yaml-js'
 
 module.exports = ->
@@ -64,7 +64,7 @@ bump = (bit) ->
   pkg_src = pkg_src.replace VERSION_REGEX, "$1$2version$1$3:$4$5#{new_version}"
   fs.writeFileSync pkg_path, pkg_src
 
-  console.log sty.green "wrote #{pkg_path}"
+  console.log colors.green "wrote #{pkg_path}"
 
   invoke 'build'
 
@@ -83,10 +83,10 @@ tag = ->
     "git tag -a #{version} -m #{version}"
   ], (e) ->
     if e?
-      console.error sty.red "\nError tagging\n#{e.stack}"
+      console.error colors.red "\nError tagging\n#{e.stack}"
       process.exit 1
     else
-      console.log sty.green "tagged #{version}"
+      console.log colors.green "tagged #{version}"
 
 ###
 Pushes the current `HEAD` to `refs/heads/master`, pushes the release tag to `refs/tag/<new
@@ -102,7 +102,7 @@ publish = ->
     "refs/tags/#{version}:refs/tags/#{version}"
   ], (e) ->
     if e?
-      console.error sty.red "\nError publishing\n#{e.stack}"
+      console.error colors.red "\nError publishing\n#{e.stack}"
       process.exit 1
 
     exec_sequence [
@@ -111,10 +111,10 @@ publish = ->
       "git stash pop"
     ], (e) ->
       if e?
-        console.error sty.red "\nError publishing\n#{e.stack}"
+        console.error colors.red "\nError publishing\n#{e.stack}"
         process.exit 1
       else
-        console.log sty.green "published #{version}"
+        console.log colors.green "published #{version}"
 
 exec_sequence = (commands, callback) ->
   command = commands[0]

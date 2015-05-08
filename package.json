@@ -6,14 +6,24 @@
     "plantation": "./bin/plantation"
   },
   "dependencies": {
-    "coffee-script": "1.x.x",
-    "chai": "1.x.x",
-    "mocha": "1.x.x",
-    "node-watch": "0.3.x",
-    "semver": "2.x.x",
-    "sinon": "1.x.x",
-    "sinon-chai": "2.x.x",
-    "sty": "0.6.x",
-    "yaml-js": "0.0.8"
+    "colors": "~1",
+    "watch": "0.16.0",
+    "semver": "~4"
+  },
+  "peerDependencies": {
+    "coffee-script": "~1",
+    "chai": "~2",
+    "mocha": "~2",
+    "sinon": "~1",
+    "sinon-chai": "~2",
+    "yaml-js": "0.1.1"
+  },
+  "devDependencies": {
+    "coffee-script": "~1",
+    "chai": "~2",
+    "mocha": "~2",
+    "sinon": "~1",
+    "sinon-chai": "~2",
+    "yaml-js": "0.1.1"
   }
 }
