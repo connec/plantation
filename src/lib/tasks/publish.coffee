@@ -125,10 +125,10 @@ publish = ->
 exec_sequence = ([ command, commands... ], callback) ->
   exec command, (e) ->
     e?.message = "Error executing #{command}: #{e}"
-    if e? or commands.length is 1
+    if e? or commands.length is 0
       callback e
     else
-      exec_sequence commands[1..], callback
+      exec_sequence commands, callback
 
 exec = (command, callback) ->
   cwd = directories.current
