@@ -2,9 +2,11 @@ watchr = require 'node-watch'
 colors = require 'colors/safe'
 util   = require '../util'
 
-compilers   = null
-directories = null
-sources     = null
+compilers    = null
+directories  = null
+sources      = null
+max_compiler = 0
+max_source   = 0
 
 ###
 Export a function to define the tasks once plantation is configured.
@@ -50,8 +52,6 @@ watch = (compiler) ->
 print_results = (compiler_results...) ->
   console.log()
 
-  max_compiler = 0
-  max_source   = 0
   for { compiler, results } in compiler_results
     max_compiler = compiler.length if compiler.length > max_compiler
     (max_source  = source.length   if source.length   > max_source) for { source } in results
