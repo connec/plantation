@@ -1,6 +1,7 @@
-{ compilers, directories } = plantation.config
 
-module.exports = ->
+module.exports = (plantation) ->
+  { compilers, directories } = plantation.config
+
   task 'info', 'Shows info about plantation', =>
     console.log """
 

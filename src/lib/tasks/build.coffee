@@ -1,22 +1,23 @@
-{ compilers, directories } = plantation.config
-
 watchr = require 'watch'
 colors = require 'colors/safe'
 util   = require '../util'
 
-sources = null
+compilers   = null
+directories = null
+sources     = null
 
 ###
 Export a function to define the tasks once plantation is configured.
 ###
-module.exports = ->
+module.exports = (plantation) ->
+  { compilers, directories } = plantation.config
+
   task 'build', 'Builds all source files', -> print_results build_all()...
   for compiler in compilers then do (compiler) ->
     task "build:#{compiler.name}", -> print_results build compiler
 
   task 'watch', 'Watches source files for changes', watch_all
   for compiler in compilers then do (compiler) ->
-    task "build:#{compiler.name}", -> print_results build compiler
     task "watch:#{compiler.name}", -> watch compiler
 
 build_all = ->

@@ -26,8 +26,6 @@ VERSION_REGEX = ///
   ([^,\s]+) # 6 - the version value
 ///m
 
-{ directories } = plantation.config
-
 build         = require './build'
 child_process = require 'child_process'
 fs            = require 'fs'
@@ -36,14 +34,22 @@ semver        = require 'semver'
 colors        = require 'colors/safe'
 yaml          = require 'yaml-js'
 
-module.exports = ->
-  for bit in [ 'major', 'minor', 'patch', 'pre' ] then do (bit) ->
+directories   = null
+
+module.exports = (plantation) ->
+  { directories } = plantation.config
+
+  bits = [ 'major', 'minor', 'patch', 'pre' ]
+
+  # Iterate 3 times to ensure tasks are defined (and so appear) in the correct order
+
+  for bit in bits then do (bit) ->
     task "bump:#{bit}",    "Bump the #{bit} version",            -> bump bit
 
-  for bit in [ 'major', 'minor', 'patch', 'pre' ] then do (bit) ->
+  for bit in bits then do (bit) ->
     task "tag:#{bit}",     "Bump then tag the repository",       -> bump bit ; tag()
 
-  for bit in [ 'major', 'minor', 'patch', 'pre' ] then do (bit) ->
+  for bit in bits then do (bit) ->
     task "publish:#{bit}", "Bump, tag then publish the package", -> bump bit ; tag() ; publish()
 
 ###
@@ -116,8 +122,7 @@ publish = ->
       else
         console.log colors.green "published #{version}"
 
-exec_sequence = (commands, callback) ->
-  command = commands[0]
+exec_sequence = ([ comands, commands... ], callback) ->
   exec command, (e) ->
     e?.message = "Error executing #{command}: #{e}"
     if e? or commands.length is 1

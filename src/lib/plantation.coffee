@@ -3,7 +3,7 @@ path = require 'path'
 ###
 The plantation object.
 ###
-module.exports = global.plantation = (options) ->
+module.exports = plantation = (options) ->
   plantation.config.options[k] = v for k, v of options
   register_default_compilers()
   plantation.cake()
@@ -43,7 +43,7 @@ directories.relative = (args...) ->
 Creates cake tasks.
 ###
 plantation.cake = ->
-  do task for task in require './tasks'
+  task plantation for task in require './tasks'
 
 ###
 Registers a compiler.

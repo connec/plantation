@@ -1,9 +1,11 @@
 path    = require 'path'
 {spawn} = require 'child_process'
 
-{ directories, options } = plantation.config
+directories = null
 
-module.exports = ->
+module.exports = (plantation) ->
+  { directories, options } = plantation.config
+
   mocha_options =
     R:         'spec'
     recursive: true
