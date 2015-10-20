@@ -18,7 +18,7 @@ VERSION_REGEX = ///
   ^(\s*)    # 1 - indent
   (["']?)   # 2 - opening quote for version key
   version
-  \1
+  \2
   (\s*)     # 3 - arbitrary spacing before :
   :
   (\s*)     # 4 - arbitrary spacing after :
@@ -67,7 +67,7 @@ bump = (bit) ->
 
   console.log "bumping #{pkg.version} -> #{new_version}"
 
-  pkg_src = pkg_src.replace VERSION_REGEX, "$1$2version$1$3:$4$5#{new_version}"
+  pkg_src = pkg_src.replace VERSION_REGEX, "$1$2version$2$3:$4$5#{new_version}"
   fs.writeFileSync pkg_path, pkg_src
 
   console.log colors.green "wrote #{pkg_path}"
