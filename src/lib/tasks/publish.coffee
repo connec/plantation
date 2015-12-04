@@ -50,7 +50,7 @@ module.exports = (plantation) ->
     task "tag:#{bit}",     "Bump then tag the repository",       -> bump bit ; tag()
 
   for bit in bits then do (bit) ->
-    task "publish:#{bit}", "Bump, tag then publish the package", -> bump bit ; tag() ; publish()
+    task "publish:#{bit}", "Bump, tag then publish the package", -> bump bit ; tag publish
 
 ###
 Increments the `bit` bit of the `version` key in the `<source directory>/package.yml` file.
@@ -78,7 +78,7 @@ bump = (bit) ->
 Commits `<source directory>/package.yml` and `package.json`, then tags the commit with the version
 in package.json.
 ###
-tag = ->
+tag = (callback) ->
   pkg_json    = directories.resolve  current: 'package.json'
   pkg_src     = directories.relative current: directories.resolve(source: 'package.yml')
   { version } = require pkg_json
@@ -93,6 +93,7 @@ tag = ->
       process.exit 1
     else
       console.log colors.green "tagged #{version}"
+      callback?()
 
 ###
 Pushes the current `HEAD` to `refs/heads/master`, pushes the release tag to `refs/tag/<new
