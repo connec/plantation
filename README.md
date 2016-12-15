@@ -91,7 +91,7 @@ Run the commands below with the executable you installed.
     Default mocha configuration can be overidden by setting the `mocha` key when configuring
     plantation.
 
-    See [the mocha homepage](http://visionmedia.github.io/mocha/) for more information about mocha.
+    See [the mocha homepage](http://mochajs.org/) for more information about mocha.
 
 -   **bump:{major,minor,patch,pre}**
 
