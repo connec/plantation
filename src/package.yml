@@ -10,11 +10,13 @@ dependencies:
   colors:         ~1
   node-watch:     0.3.4
   semver:         ~4
-peerDependencies: &peerDependencies
-  coffee-script:  ~1
-  chai:           ~2
-  mocha:          ~2
-  sinon:          ~1
-  sinon-chai:     ~2
-  yaml-js:        0.1.1
-devDependencies:  *peerDependencies
+peerDependencies:
+  coffee-script:  '*'
+  chai:           '*'
+  mocha:          '*'
+  sinon:          '*'
+  sinon-chai:     '*'
+  yaml-js:        '*'
+devDependencies:
+  coffee-script:  ~1.9.0
+  yaml-js:        0.2.0
