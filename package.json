@@ -15,7 +15,7 @@
     "semver": "~4"
   },
   "peerDependencies": {
-    "coffee-script": "*",
+    "coffeescript": "*",
     "chai": "*",
     "mocha": "*",
     "sinon": "*",
@@ -23,7 +23,7 @@
     "yaml-js": "*"
   },
   "devDependencies": {
-    "coffee-script": "~1.9.0",
+    "coffeescript": "~1.9.0",
     "yaml-js": "0.2.0"
   }
 }

@@ -9,9 +9,9 @@ module.exports = (plantation) ->
   mocha_options =
     R:         'spec'
     recursive: true
-    require:   'coffee-script'
+    require:   'coffeescript'
     require:   directories.relative(current: path.join __dirname, '..', 'test', 'support', 'test_helper')
-    compilers: 'coffee:coffee-script/register'
+    compilers: 'coffee:coffeescript/register'
 
   if options.mocha?
     mocha_options[k] = v for k, v of options.mocha

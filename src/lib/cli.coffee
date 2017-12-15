@@ -1,4 +1,4 @@
-cake       = require 'coffee-script/lib/coffee-script/cake'
+cake       = require 'coffeescript/lib/coffeescript/cake'
 path       = require 'path'
 plantation = require './plantation'
 

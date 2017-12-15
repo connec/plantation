@@ -68,7 +68,7 @@ plantation.register_compiler = (name, source, target, compiler) ->
 Registers default compilers for CoffeeScript and YAML.
 ###
 register_default_compilers = ->
-  compile_coffee = require('coffee-script').compile
+  compile_coffee = require('coffeescript').compile
   compile_yaml   = (source) -> JSON.stringify require('yaml-js').load(source), null, '  '
 
   plantation.register_compiler 'coffee', 'js', compile_coffee

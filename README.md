@@ -1,7 +1,7 @@
 # Plantation
 
 `plantation` is a collection of [cake](http://coffeescript.org/#cake) tasks to simplify working on
-projects using multiple transpilers, particularly coffee-script and YAML.  It has strong opinions
+projects using multiple transpilers, particularly coffeescript and YAML.  It has strong opinions
 about the tools you want to use.
 
 ## Status
@@ -57,7 +57,7 @@ Run the commands below with the executable you installed.
             source:  <cwd>/src # the directory in which plantation will look for source files to compile
             target:  <cwd>     # the directory in which plantation will write compiled files
           compilers:           # the compilers plantation has registered
-            coffee             # the coffee-script compiler
+            coffee             # the coffeescript compiler
             yaml               # the YAML compiler
 
 -   **build[:compiler]**

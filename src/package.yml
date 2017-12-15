@@ -11,12 +11,12 @@ dependencies:
   node-watch:     0.3.4
   semver:         ~4
 peerDependencies:
-  coffee-script:  '*'
+  coffeescript:   '*'
   chai:           '*'
   mocha:          '*'
   sinon:          '*'
   sinon-chai:     '*'
   yaml-js:        '*'
 devDependencies:
-  coffee-script:  ~1.9.0
+  coffeescript:   ~1.9.0
   yaml-js:        0.2.0
