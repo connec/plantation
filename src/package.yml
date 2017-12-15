@@ -18,5 +18,5 @@ peerDependencies:
   sinon-chai:     '*'
   yaml-js:        '*'
 devDependencies:
-  coffeescript:   ~1.9.0
+  coffeescript:   ~2.1.0
   yaml-js:        0.2.0
